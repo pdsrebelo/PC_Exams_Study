@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1C319A21-E9B2-4112-8AD7-847DA976FFAE}</ProjectGuid>
+    <ProjectGuid>{A9F10B23-5C7B-413B-A9AF-C1BB8C6ABE34}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PC_Exams_Study</RootNamespace>
-    <AssemblyName>PC_Exams_Study</AssemblyName>
+    <RootNamespace>Exam_1314i_1E</RootNamespace>
+    <AssemblyName>Exam_1314i_1E</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -41,11 +41,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ex1\Ex1_Cathy.cs" />
+    <Compile Include="Ex1\Ex1_Peter.cs" />
+    <Compile Include="Ex2\Ex2_Cathy.cs" />
+    <Compile Include="Ex2\Ex2_Peter.cs" />
+    <Compile Include="Ex3\Ex3_Cathy.cs" />
+    <Compile Include="Ex3\Ex3_Peter.cs" />
+    <Compile Include="Ex4\Ex4_Cathy.cs" />
+    <Compile Include="Ex4\Ex4_Peter.cs.cs" />
+    <Compile Include="Ex5\Ex5_Cathy.cs" />
+    <Compile Include="Ex5\Ex5_Peter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\PC_Exams_Study\PC_Exams_Study_Utils.csproj">
+      <Project>{1c319a21-e9b2-4112-8ad7-847da976ffae}</Project>
+      <Name>PC_Exams_Study_Utils</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

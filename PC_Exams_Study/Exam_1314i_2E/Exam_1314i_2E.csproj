@@ -53,10 +53,15 @@
     <Compile Include="Ex5\Ex5_Peter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SyncUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PC_Exams_Study\PC_Exams_Study_Utils.csproj">
+      <Project>{1c319a21-e9b2-4112-8ad7-847da976ffae}</Project>
+      <Name>PC_Exams_Study_Utils</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

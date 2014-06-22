@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PC_Exams_Study", "PC_Exams_Study\PC_Exams_Study.csproj", "{1C319A21-E9B2-4112-8AD7-847DA976FFAE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PC_Exams_Study_Utils", "PC_Exams_Study\PC_Exams_Study_Utils.csproj", "{1C319A21-E9B2-4112-8AD7-847DA976FFAE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Exam_1314i_2E", "Exam_1314i_2E\Exam_1314i_2E.csproj", "{C5AAACF9-9153-45F2-96EA-F14B4E6EE1E6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Exam_1213i_2E", "Exam_1213i_2E\Exam_1213i_2E.csproj", "{4B2C342E-B073-4BA1-8EDE-629338B74486}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Exam_1314i_1E", "Exam_1314i_1E\Exam_1314i_1E.csproj", "{A9F10B23-5C7B-413B-A9AF-C1BB8C6ABE34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{4B2C342E-B073-4BA1-8EDE-629338B74486}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B2C342E-B073-4BA1-8EDE-629338B74486}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B2C342E-B073-4BA1-8EDE-629338B74486}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9F10B23-5C7B-413B-A9AF-C1BB8C6ABE34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9F10B23-5C7B-413B-A9AF-C1BB8C6ABE34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9F10B23-5C7B-413B-A9AF-C1BB8C6ABE34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9F10B23-5C7B-413B-A9AF-C1BB8C6ABE34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PC_Exams_Study
+namespace Exam_1314i_1E.Ex4
 {
-    class Program
+    class Ex4_Peter
     {
-        static void Main(string[] args)
-        {
-        }
     }
 }
