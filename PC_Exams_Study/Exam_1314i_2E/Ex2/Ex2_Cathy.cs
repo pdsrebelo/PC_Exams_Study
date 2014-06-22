@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Exam_1314i_2E.Ex1
+namespace Exam_1314i_2E.Ex2
 {
-    class Ex1_Peter
+    class Ex2_Cathy
     {
     }
 }

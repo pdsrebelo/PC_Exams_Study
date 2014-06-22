@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Exam_1314i_2E
+namespace Exam_1314i_2E.Ex1
 {
     class Ex1_Cathy
     {
