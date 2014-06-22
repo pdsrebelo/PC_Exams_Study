@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Exam_1314i_2E.Ex1
 {
@@ -14,23 +11,34 @@ namespace Exam_1314i_2E.Ex1
         /// <typeparam name="T"></typeparam>
         public class BlackBoard<T> where T : class
         {
-            private T _msgHolder = null;
+            private T _msgHolder;
 
             /// <summary>
             /// A operação Write afixa a mensagem recebida (message), que permanecerá válida durante o intervalo de
-            /// tempo duration, especificando em milissegundo. No caso de ainda existir uma mensagem válida no blackboard,
+            /// tempo duration, especificado em milissegundos. No caso de ainda existir uma mensagem válida no blackboard,
             /// a nova mensagem substitui a existente.
             /// </summary>
             /// <param name="message"></param>
             /// <param name="duration"></param>
             public void Write(T message, int duration)
             {
-                lock (_msgHolder)
+                if (duration == 0 || message == null)
+                    return;
+                
+                lock (_msgHolder)   // TODO: Podemos fazer lock a um tipo class null?
                 {
                     _msgHolder = message;
 
-//                    int lastTime = SyncUtils.AdjustTimeout()
+                    Monitor.PulseAll(_msgHolder);
 
+                    int lastTime = duration != Timeout.Infinite ? Environment.TickCount : 0;
+
+                    do
+                    {
+                        Monitor.Wait(_msgHolder, duration);
+                    } while (SyncUtils.AdjustTimeout(ref lastTime, ref duration) == 0);
+
+                    Clear(); // TODO: Is this right? ou _msgHolder = null;
                 }                
             }
 
@@ -44,7 +52,17 @@ namespace Exam_1314i_2E.Ex1
             /// <returns></returns>
             public T Read(int timeout)
             {
-                return null;
+                int lastTime = timeout != Timeout.Infinite ? Environment.TickCount : 0;
+                do
+                {
+                    if (_msgHolder != null)
+                        return _msgHolder;
+
+                    Monitor.Wait(_msgHolder, timeout);
+
+                    if (SyncUtils.AdjustTimeout(ref lastTime, ref timeout) == 0)
+                        throw new TimeoutException();
+                } while (true);
             }
 
             /// <summary>
