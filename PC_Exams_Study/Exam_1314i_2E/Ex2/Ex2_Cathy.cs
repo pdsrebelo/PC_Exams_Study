@@ -22,24 +22,47 @@ namespace Exam_1314i_2E.Ex2
             // Afixa a mensagem recebida, que permanecerá válida durante o tempo especificado (duration)
             public void Write(T message, int duration)
             {
+                if (message == null)
+                    return;
                 lock (msg)
                 {
-                    int lastTime = duration != Timeout.Infinite ? Environment.TickCount() : 0;
+                    int lastTime = duration != Timeout.Infinite ? Environment.TickCount: 0;
                     msg = message;
                     Monitor.PulseAll(msg);
                     do
                     {
                         Monitor.Wait(msg, duration);
 
-                    } while (SyncUtils.AdjustTimeout(ref lastTime, ref duration)!=0);
+                    } while (SyncUtils.AdjustTimeout(ref lastTime, ref duration)>0);
                 }
+                Clear();
             }
 
             // bloqueia a thread invocante caso nao exista nenhuma mensagem
-            public T Read()
+            public T Read(int timeout)
             {
-                T msgToRead = null;
+                if(timeout==0)
+                    return null;
                 
+                T msgToRead = null;
+                int lastTime = timeout != Timeout.Infinite ? Environment.TickCount : 0;
+                do
+                {
+                    if ((msgToRead = msg) != null)
+                        break;
+                    try
+                    {
+                        Monitor.Wait(msg);
+                    }
+                    catch (ThreadInterruptedException iex)
+                    {
+                        return null;
+                    }
+                    if (SyncUtils.AdjustTimeout(ref lastTime, ref timeout) <= 0)
+                    {
+                        throw new TimeoutException();
+                    }
+                } while (true);
                 return msgToRead;
             }
 
@@ -52,10 +75,6 @@ namespace Exam_1314i_2E.Ex2
                 }
             }
         }
-        // ...
- 
 
-
-        // ...
     }
 }
