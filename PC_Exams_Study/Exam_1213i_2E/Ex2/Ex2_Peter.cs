@@ -1,40 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Exam_1213i_2E.Ex2
 {
-    // TODO : Usar delegação de execução
     class Ex2_Peter
     {
         public class Message<T>
         {
+
+            public int Type { get; set; }
+            public T Data { get; set; }
+
             public Message(int msgType, T msgData)
             {
-                _type = msgType;
-                _data = msgData;
-            }  
-
-            private int _type;
-            public int Type
-            {
-                get
-                {
-                    return _type;
-                }
+                Type = msgType;
+                Data = msgData;
             }
+        }
 
-            private T _data;
-            public T Data
-            {
-                get
-                {
-                    return _data;
-                }
-            }
+        public class Waiter<T>
+        {
+            public Predicate<int> Selector { get; set; }
+            public Message<T> Msg { get; set; }
         }
 
         /// <summary>
@@ -44,6 +32,7 @@ namespace Exam_1213i_2E.Ex2
         public class MessageQueue<T>
         {
             LinkedList<Message<T>> _msgQueue = new LinkedList<Message<T>>();
+            LinkedList<Waiter<T>> _waiters = new LinkedList<Waiter<T>>();
 
             /// <summary>
             /// A operação Send promove a entrega da mensagem (msg) sem bloquear a thread invocante.
@@ -53,7 +42,26 @@ namespace Exam_1213i_2E.Ex2
             {
                 lock (this)
                 {
-                    _msgQueue.AddLast(msg);
+                    Waiter<T> w = null;
+
+                    foreach (var waiter in _waiters)
+                    {
+                        if (waiter.Selector(msg.Type))
+                        {
+                            w = waiter;
+                            break;
+                        }
+                    }
+
+                    if (w != null)
+                    {
+                        w.Msg.Data = msg.Data;
+                        w.Msg.Type = msg.Type;
+                        _waiters.Remove(w);
+                    }
+                    else
+                        _msgQueue.AddLast(msg);
+
                     Monitor.PulseAll(this);
                 }
             }
@@ -80,18 +88,27 @@ namespace Exam_1213i_2E.Ex2
                     if (retMsg != null)
                         return retMsg;
 
+                    var myNode = new Waiter<T> {Selector = selector};
+
                     do
                     {
-                        Monitor.Wait(this);
-
-                        foreach (var msg in _msgQueue)
+                        try
                         {
-                            if (selector(msg.Type))
-                                retMsg = msg;
+                            Monitor.Wait(this);
+                        }
+                        catch (ThreadInterruptedException)
+                        {
+                            if (!myNode.Msg.Data.Equals(default(T))) // TODO: Is this correct?
+                            {
+                                // The message was never added, so we do it
+                                _msgQueue.AddLast(new Message<T>(myNode.Msg.Type, myNode.Msg.Data));
+                            }         
                         }
 
-                        if (retMsg != null)
-                            return retMsg;
+                        if (!myNode.Msg.Equals(default(T)))
+                        {
+                            return new Message<T>(myNode.Msg.Type, myNode.Msg.Data);
+                        }
 
                     } while (true);
                 }
