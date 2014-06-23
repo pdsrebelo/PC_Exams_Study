@@ -42,6 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ex1\Ex1_Cathy.cs" />
+    <Compile Include="Ex1\Ex1_Peter.cs" />
     <Compile Include="Ex2\Ex2_Cathy.cs" />
     <Compile Include="Ex2\Ex2_Peter.cs" />
     <Compile Include="Program.cs" />
