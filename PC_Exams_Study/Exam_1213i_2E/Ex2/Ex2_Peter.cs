@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Exam_1213i_2E.Ex2
 {
+    // TODO : Usar delegação de execução
     class Ex2_Peter
     {
         public class Message<T>
@@ -42,7 +43,6 @@ namespace Exam_1213i_2E.Ex2
         /// </summary>
         public class MessageQueue<T>
         {
-
             LinkedList<Message<T>> _msgQueue = new LinkedList<Message<T>>();
 
             /// <summary>

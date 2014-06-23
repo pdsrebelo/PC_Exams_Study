@@ -5,13 +5,27 @@ namespace Exam_1314i_2E.Ex1
 {
     class Ex1_Peter
     {
+        public class Message<T>
+        {
+            public T Msg { get; set; }
+            public int Duration { get; set; }
+            public int BeginCount { get; set; }
+
+            public Message(T msg, int duration)
+            {
+                Msg = msg;
+                Duration = duration;
+                BeginCount = Environment.TickCount;
+            } 
+        }
+
         /// <summary>
         /// O sincronizador blackboard suporta a afixação de mensagens a serem lidas por várias threads.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         public class BlackBoard<T> where T : class
         {
-            private T _msgHolder;
+            private Message<T> _msgHolder;
 
             /// <summary>
             /// A operação Write afixa a mensagem recebida (message), que permanecerá válida durante o intervalo de
@@ -25,20 +39,11 @@ namespace Exam_1314i_2E.Ex1
                 if (duration == 0 || message == null)
                     return;
                 
-                lock (_msgHolder)   // TODO: Podemos fazer lock a um tipo class null?
+                lock (this)
                 {
-                    _msgHolder = message;
+                    _msgHolder = new Message<T>(message, duration);
 
-                    Monitor.PulseAll(_msgHolder);
-
-                    int lastTime = duration != Timeout.Infinite ? Environment.TickCount : 0;
-
-                    do
-                    {
-                        Monitor.Wait(_msgHolder, duration);
-                    } while (SyncUtils.AdjustTimeout(ref lastTime, ref duration) == 0);
-
-                    Clear(); // TODO: Is this right? ou _msgHolder = null;
+                    Monitor.PulseAll(this);
                 }                
             }
 
@@ -52,16 +57,20 @@ namespace Exam_1314i_2E.Ex1
             /// <returns></returns>
             public T Read(int timeout)
             {
+                if (_msgHolder.Msg != null && _msgHolder.BeginCount + _msgHolder.Duration < Environment.TickCount)
+                    return _msgHolder.Msg;
+
                 int lastTime = timeout != Timeout.Infinite ? Environment.TickCount : 0;
                 do
                 {
-                    if (_msgHolder != null)
-                        return _msgHolder;
+                    Monitor.Wait(this, timeout);
 
-                    Monitor.Wait(_msgHolder, timeout);
+                    if (_msgHolder.Msg != null && _msgHolder.BeginCount + _msgHolder.Duration < Environment.TickCount)
+                        return _msgHolder.Msg;
 
                     if (SyncUtils.AdjustTimeout(ref lastTime, ref timeout) == 0)
                         throw new TimeoutException();
+
                 } while (true);
             }
 
@@ -70,7 +79,7 @@ namespace Exam_1314i_2E.Ex1
             /// </summary>
             public void Clear()
             {
-                lock (_msgHolder)
+                lock (this)
                 {
                     _msgHolder = null;
                 }

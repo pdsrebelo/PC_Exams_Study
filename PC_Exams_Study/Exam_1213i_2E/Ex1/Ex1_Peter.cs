@@ -29,7 +29,7 @@ namespace Exam_1213i_2E.Ex1
                         _permits --;
                         return true;
                     }
-                    if (_permits == 1)
+                    if (_permits == -1)
                     {
                         return true;
                     }
@@ -45,7 +45,7 @@ namespace Exam_1213i_2E.Ex1
                         catch (ThreadInterruptedException)
                         {
                             if (_permits > 0 || _permits == -1)
-                                Monitor.Pulse(this);    // TODO: We only do this because of Monitor.Pulse(this) on Complete() ?
+                                Monitor.Pulse(this);
                             throw;
                         }
 
@@ -54,14 +54,17 @@ namespace Exam_1213i_2E.Ex1
                             _permits--;
                             return true;
                         }
-                        if (_permits == 1)
+                        if (_permits == -1)
                         {
                             return true;
                         }
 
-                    } while (SyncUtils.AdjustTimeout(ref lastTime, ref timeout) == 0);
-
-                    return false;
+                        if (SyncUtils.AdjustTimeout(ref lastTime, ref timeout) == 0)
+                        {   
+                            // If I got here, there's a guarantee that we have no work.
+                            return false;
+                        }
+                    } while (true);
                 }
             }
 
