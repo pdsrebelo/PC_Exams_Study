@@ -46,6 +46,8 @@
     <Compile Include="Ex1\Ex1_Peter.cs" />
     <Compile Include="Ex2\Ex2_Cathy.cs" />
     <Compile Include="Ex2\Ex2_Peter.cs" />
+    <Compile Include="Ex3\Ex3_Cathy.cs" />
+    <Compile Include="Ex3\Ex3_Peter.cs" />
     <Compile Include="Ex4\Ex4_Cathy.cs" />
     <Compile Include="Ex4\Ex4_Peter.cs" />
     <Compile Include="Ex5\Ex5_Cathy.cs" />
