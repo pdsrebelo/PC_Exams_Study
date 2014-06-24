@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -44,19 +45,43 @@ namespace Exam_1314i_2E.Ex3
          * um construtor que recebe como argumento a instância de AsyncCallback que será invocada quando a computação for concluída. 
          * O outro parâmetro do construtor, asyncState, permite especificar um objecto que poderá ser obtido através da propriedade AsyncState.
          * */
-
-        public class IAsyncResult
-        {
-            // IAsyncResult properties.
-            public bool IsCompleted { get; set; }
-            public WaitHandle AsyncWaitHandle { get; set; }
-            public object AsyncState { get; set; }
-            public bool CompletedSynchronously { get { return false; } }
-        }
-
-        public sealed class Future<T> : IAsyncResult
+        public sealed class Future<T> : System.IAsyncResult
         {
             private AsyncCallback _callback;
+            /*
+             * A propriedade AsyncWaitHandle produz a referência para a instância de ManualResetEvent que fica sinalizado quando for 
+            *  publicado o resultado da operação assíncrona. Note que a instância de ManualResetEvent é criada de forma deferida caso 
+            *  seja efectivamente necessária, ou seja, se a propriedade AsyncWaitHandle for de facto acedida.*/
+
+            public bool IsCompleted
+            {
+                get { ThreadPool.QueueUserWorkItem(new WaitCallback(), AsyncState); }
+                set { throw new NotImplementedException(); }
+            }
+
+            public WaitHandle AsyncWaitHandle//The WaitHandle returned by this method is automatically signaled when the asynchronous operation has completed.
+            {
+                get
+                {
+                    lock (this)
+                    {
+                        if (IsCompleted)
+                            return new ManualResetEvent(true);
+                        return new ManualResetEvent(false);
+                    }
+
+                }
+            }
+
+            public object AsyncState { get; private set; }
+
+            public bool CompletedSynchronously
+            {
+                get { return false; }
+            }
+
+            
+
             public T Result
             {
                 /*
@@ -66,18 +91,51 @@ namespace Exam_1314i_2E.Ex3
                 get
                 {
                     T t = default(T);
-                    return t; 
-                    
+                    lock (this)
+                    {
+                        if (IsCompleted)
+                        {
+                            return Result;
+                        }
+
+                        //bloqueia a thread invocantes ate que o resultado esteja disponivel
+                        do
+                        {
+                            try
+                            {
+                                ((ManualResetEvent)AsyncWaitHandle).WaitOne(Timeout.Infinite);
+                                // Monitor.Wait(AsyncWaitHandle);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw ex;
+                            }
+                            if (IsCompleted)
+                            {
+                                return Result;
+                            }
+                        } while (true);
+
+                    }
                 }
-                set { }
             }
 
             public Future(AsyncCallback userCallback, object asyncState)
             {
                 AsyncState = asyncState;
                 _callback = userCallback;
+
+                // Desencadear a chamada assincrona ao metodo
+                _callback.BeginInvoke(this, methodIsCompleted, AsyncState);
             }
 
+            private void methodIsCompleted(IAsyncResult ar)
+            {
+              
+                _callback.EndInvoke(ar);
+                IsCompleted = true;
+                AsyncWaitHandle.s
+            }
 
             /*
              * O resultado da computação realizada assincronamente é publicado através da operação TrySet, 
@@ -89,11 +147,30 @@ namespace Exam_1314i_2E.Ex3
               * não produzem efeitos no estado do sincronizador, retornando false.*/
             public bool TrySet(T result)
             {
+                if (!IsCompleted)
+                {
+                    lock (this)
+                    {
+
+                        ((ManualResetEvent)AsyncWaitHandle).Set();
+                       // Monitor.Pulse(AsyncWaitHandle);
+                        return true;
+                    }
+                }
                 return false;
             }
 
             public bool TrySetException(Exception exception)
             {
+                if (!IsCompleted)
+                {
+                    lock (this)
+                    {
+                        ((ManualResetEvent)AsyncWaitHandle).Set();
+                       // Monitor.Pulse(AsyncWaitHandle);
+                        throw exception;
+                    }
+                }
                 return false;
             }
 
