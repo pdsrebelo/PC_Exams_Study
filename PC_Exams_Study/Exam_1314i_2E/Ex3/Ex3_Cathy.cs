@@ -80,8 +80,6 @@ namespace Exam_1314i_2E.Ex3
                 get { return false; }
             }
 
-            
-
             public T Result
             {
                 /*
@@ -131,10 +129,9 @@ namespace Exam_1314i_2E.Ex3
 
             private void methodIsCompleted(IAsyncResult ar)
             {
-              
                 _callback.EndInvoke(ar);
                 IsCompleted = true;
-                AsyncWaitHandle.s
+                //AsyncWaitHandle
             }
 
             /*
