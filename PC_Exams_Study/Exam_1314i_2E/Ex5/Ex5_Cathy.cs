@@ -31,9 +31,10 @@ namespace Exam_1314i_2E.Ex5
                     rightArray[i] = data[i];
                 }
 
-                var left = Task.Run(() => MaxIndex(leftArray));
-                var right = Task.Run(()=> MaxIndex(rightArray));
+                Task<int> left = Task.Run(() => MaxIndex(leftArray));
+                Task<int> right = Task.Run(()=> MaxIndex(rightArray));
 
+                Task.WaitAll(left, right);// nao e preciso usar isto quando usamos .Result!
                 var resL = left.Result;
                 var resR = right.Result;
 
