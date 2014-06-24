@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.XPath;
 
 namespace Exam_1314i_2E.Ex3
 {
@@ -47,16 +48,20 @@ namespace Exam_1314i_2E.Ex3
          * */
         public sealed class Future<T> : System.IAsyncResult
         {
-            private AsyncCallback _callback;
-            /*
-             * A propriedade AsyncWaitHandle produz a referência para a instância de ManualResetEvent que fica sinalizado quando for 
-            *  publicado o resultado da operação assíncrona. Note que a instância de ManualResetEvent é criada de forma deferida caso 
-            *  seja efectivamente necessária, ou seja, se a propriedade AsyncWaitHandle for de facto acedida.*/
+            private ManualResetEvent _event;
+            private readonly AsyncCallback _callback;
+            private Exception _ex;
 
-            public bool IsCompleted
+            private bool _isCompleted;
+            private T _result;
+
+            public Future(AsyncCallback userCallback, object asyncState)
             {
-                get { ThreadPool.QueueUserWorkItem(new WaitCallback(), AsyncState); }
-                set { throw new NotImplementedException(); }
+                AsyncState = asyncState;
+                _callback = userCallback;
+                _ex = null;
+                _isCompleted = false;
+                _result = default(T);
             }
 
             public WaitHandle AsyncWaitHandle//The WaitHandle returned by this method is automatically signaled when the asynchronous operation has completed.
@@ -65,9 +70,7 @@ namespace Exam_1314i_2E.Ex3
                 {
                     lock (this)
                     {
-                        if (IsCompleted)
-                            return new ManualResetEvent(true);
-                        return new ManualResetEvent(false);
+                        return _event ?? (_event = new ManualResetEvent(false));
                     }
 
                 }
@@ -80,6 +83,13 @@ namespace Exam_1314i_2E.Ex3
                 get { return false; }
             }
 
+            /*
+             * A propriedade AsyncWaitHandle produz a referência para a instância de ManualResetEvent que fica sinalizado quando for 
+            *  publicado o resultado da operação assíncrona. Note que a instância de ManualResetEvent é criada de forma deferida caso 
+            *  seja efectivamente necessária, ou seja, se a propriedade AsyncWaitHandle for de facto acedida.*/
+
+            public bool IsCompleted { get { return _isCompleted; } }
+
             public T Result
             {
                 /*
@@ -88,50 +98,28 @@ namespace Exam_1314i_2E.Ex3
                  * Sublinha-se que caso a computação assíncrona tenha terminado com erro, a propriedade Result lança a excepção produzida pela computação.*/
                 get
                 {
-                    T t = default(T);
                     lock (this)
                     {
-                        if (IsCompleted)
-                        {
-                            return Result;
-                        }
+                        if (IsCompleted && _result!=null)
+                            return _result;
 
-                        //bloqueia a thread invocantes ate que o resultado esteja disponivel
+                        if (_ex!=null)
+                            throw _ex;
+                       
                         do
                         {
-                            try
-                            {
-                                ((ManualResetEvent)AsyncWaitHandle).WaitOne(Timeout.Infinite);
-                                // Monitor.Wait(AsyncWaitHandle);
-                            }
-                            catch (Exception ex)
-                            {
-                                throw ex;
-                            }
-                            if (IsCompleted)
-                            {
-                                return Result;
-                            }
-                        } while (true);
+                            //bloqueia a thread invocantes ate que o resultado esteja disponivel
+                            Monitor.Wait(this);
 
+                            if (IsCompleted && _result!=null)
+                                return _result;
+
+                            if (_ex!=null)
+                                throw _ex;
+
+                        } while (true);
                     }
                 }
-            }
-
-            public Future(AsyncCallback userCallback, object asyncState)
-            {
-                AsyncState = asyncState;
-                _callback = userCallback;
-
-                // Desencadear a chamada assincrona ao metodo
-                _callback.BeginInvoke(this, methodIsCompleted, AsyncState);
-            }
-
-            private void methodIsCompleted(IAsyncResult ar)
-            {
-                _callback.EndInvoke(ar);
-                IsCompleted = true;
-                //AsyncWaitHandle
             }
 
             /*
@@ -144,31 +132,33 @@ namespace Exam_1314i_2E.Ex3
               * não produzem efeitos no estado do sincronizador, retornando false.*/
             public bool TrySet(T result)
             {
-                if (!IsCompleted)
+                lock (this)
                 {
-                    lock (this)
-                    {
+                    if (IsCompleted)
+                        return false;
 
-                        ((ManualResetEvent)AsyncWaitHandle).Set();
-                       // Monitor.Pulse(AsyncWaitHandle);
-                        return true;
-                    }
+                    _result = result;
+                    _callback(this);
+                    _event.Set();
+                    Monitor.PulseAll(this);
+                    return _isCompleted = true;
+                    
                 }
-                return false;
             }
 
             public bool TrySetException(Exception exception)
             {
-                if (!IsCompleted)
+                lock (this)
                 {
-                    lock (this)
-                    {
-                        ((ManualResetEvent)AsyncWaitHandle).Set();
-                       // Monitor.Pulse(AsyncWaitHandle);
-                        throw exception;
-                    }
+                    if (IsCompleted)
+                        return false;
+
+                    _ex = exception;
+                    _callback(this);
+                    _event.Set();
+                    Monitor.PulseAll(this);
+                    return true;
                 }
-                return false;
             }
 
         }
