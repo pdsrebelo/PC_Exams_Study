@@ -102,6 +102,7 @@ namespace Exam_1213i_2E.Ex2
                             {
                                 // The message was never added, so we do it
                                 _msgQueue.AddLast(new Message<T>(myNode.Msg.Type, myNode.Msg.Data));
+                                // TODO: Pulse?
                             }         
                         }
 
