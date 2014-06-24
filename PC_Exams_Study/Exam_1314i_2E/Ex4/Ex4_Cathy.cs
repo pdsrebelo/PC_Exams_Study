@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Exam_1314i_2E.Ex4
 {
@@ -33,34 +29,45 @@ namespace Exam_1314i_2E.Ex4
         public static WaitHandle ApmCopyStream(Stream src, Stream dst)
         {
             WaitHandle evt = new ManualResetEvent(false);
-            byte[] dataBlock = new byte[4*1024];
+            byte[] dataBlock = new byte[4*1024];            // buffer
 
             // Iniciar a leitura assincrona
             int bytesRead = 0;
             int offsetWrite = 0, offsetRead=0;
-            do
+
+            AsyncCallback readCompletedCb = null;
+            
+            readCompletedCb = delegate(IAsyncResult ar)
             {
-                src.BeginRead(dataBlock, offsetRead, dataBlock.Length, delegate(IAsyncResult ar)
+
+                bytesRead = src.EndRead(ar);
+
+                if (bytesRead == 0)
                 {
-                    bytesRead = src.EndRead(ar);
-                    if (bytesRead == 0)
-                    {
-                        src.Close();
-                        ((ManualResetEvent) evt).Set();
-                    }
-                    else
-                    {
-                        dst.BeginWrite(dataBlock, offsetWrite, bytesRead, dst.EndWrite, dst);
-                        offsetWrite += bytesRead + 1;
-                    }
-                }, src);
+                    src.Close();
 
-                if (bytesRead == 0) 
-                    break;
+                    //  Ja ha resultado final
+                    ((ManualResetEvent) evt).Set();
+
+                    //  Sair
+                }
+                else
+                {
+                    dst.BeginWrite(dataBlock, offsetWrite, bytesRead,
+                        delegate(IAsyncResult ar2)
+                        {
+                            dst.EndWrite(ar2);
+                            offsetWrite += bytesRead + 1;
+                            src.BeginRead(new byte[4*1024], offsetRead, dataBlock.Length, readCompletedCb, src);
+
+                        }, offsetRead);
+                    offsetRead += bytesRead;
+
+                }
+            };
+            
+            src.BeginRead(dataBlock, offsetRead, dataBlock.Length, readCompletedCb, src);
                 
-                offsetRead += bytesRead;
-            } while (true);
-
             return evt;
         }
     }
