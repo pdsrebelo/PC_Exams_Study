@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Exam_1314i_2E.Ex2
 {
@@ -30,21 +26,9 @@ namespace Exam_1314i_2E.Ex2
 
         public class BlackBoard<T> where T : class
         {
-            class Message<T>
-            {
-                public T message { get; set; }
-                public int timeMessageWasWritten { get; set; }
-                public int messageDuration { get; set; }
-
-                public Message(T msg, int beginTime, int durationTime)
-                {
-                    message = msg;
-                    timeMessageWasWritten = beginTime;
-                    messageDuration = durationTime;
-                }
-            }
-
-            private Message<T> _msg;
+            private T _msg;
+            private int _msgInitialTime;
+            private int _msgDuration;
 
             public BlackBoard()
             {
@@ -59,7 +43,9 @@ namespace Exam_1314i_2E.Ex2
                 lock (this)
                 {
                     // mesmo que ainda exista uma mensagem válida, a nova msg substitui a existente
-                    _msg = new Message<T>(message, Environment.TickCount, duration);
+                    _msg = message;
+                    _msgInitialTime = Environment.TickCount;
+                    _msgDuration = duration;
                     Monitor.PulseAll(this);
                 }
             }
@@ -74,9 +60,9 @@ namespace Exam_1314i_2E.Ex2
                     if (_msg != null) // Ver se existe mensagem
                     {
                         // Se o tempo de validade da mensagem ainda nao passou... Retornar a mensagem.
-                        if (_msg.messageDuration >= Environment.TickCount - _msg.timeMessageWasWritten)
+                        if (_msgDuration >= Environment.TickCount - _msgInitialTime)
                         {
-                            return _msg.message;
+                            return _msg;
                         }
                         Clear(); // Se o tempo de validade ja passou, limpar
                     }
@@ -96,10 +82,10 @@ namespace Exam_1314i_2E.Ex2
                         }
                         if (_msg != null)
                         {
-                            if (_msg.messageDuration < Environment.TickCount - _msg.timeMessageWasWritten)
+                            if (_msgDuration < Environment.TickCount - _msgInitialTime)
                                 Clear();
                             else
-                                return _msg.message;
+                                return _msg;
                         }
                         if (SyncUtils.AdjustTimeout(ref initialTime, ref timeout) <= 0)
                         {
@@ -117,6 +103,5 @@ namespace Exam_1314i_2E.Ex2
                 }
             }
         }
-
     }
 }
