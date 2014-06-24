@@ -56,6 +56,12 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PC_Exams_Study\PC_Exams_Study_Utils.csproj">
+      <Project>{1C319A21-E9B2-4112-8AD7-847DA976FFAE}</Project>
+      <Name>PC_Exams_Study_Utils</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
