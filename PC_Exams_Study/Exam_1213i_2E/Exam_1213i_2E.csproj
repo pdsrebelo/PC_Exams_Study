@@ -45,6 +45,7 @@
     <Compile Include="Ex1\Ex1_Peter.cs" />
     <Compile Include="Ex2\Ex2_Cathy.cs" />
     <Compile Include="Ex2\Ex2_Peter.cs" />
+    <Compile Include="Ex4\Ex4_Peter.cs" />
     <Compile Include="Ex5\Ex5_Cathy.cs" />
     <Compile Include="Ex5\Ex5_Peter.cs" />
     <Compile Include="Program.cs" />
@@ -55,7 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Ex3\" />
-    <Folder Include="Ex4\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PC_Exams_Study\PC_Exams_Study_Utils.csproj">

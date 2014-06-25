@@ -46,8 +46,6 @@
     <Compile Include="Ex1\Ex1_Peter.cs" />
     <Compile Include="Ex2\Ex2_Cathy.cs" />
     <Compile Include="Ex2\Ex2_Peter.cs" />
-    <Compile Include="Ex3\Ex3_Cathy.cs" />
-    <Compile Include="Ex3\Ex3_Peter.cs" />
     <Compile Include="Ex4\Ex4_Cathy.cs" />
     <Compile Include="Ex4\Ex4_Peter.cs" />
     <Compile Include="Ex5\Ex5_Cathy.cs" />
@@ -60,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PC_Exams_Study\PC_Exams_Study_Utils.csproj">
-      <Project>{1C319A21-E9B2-4112-8AD7-847DA976FFAE}</Project>
+      <Project>{1c319a21-e9b2-4112-8ad7-847da976ffae}</Project>
       <Name>PC_Exams_Study_Utils</Name>
     </ProjectReference>
   </ItemGroup>

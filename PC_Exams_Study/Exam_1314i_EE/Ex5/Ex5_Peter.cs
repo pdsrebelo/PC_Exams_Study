@@ -10,7 +10,7 @@ namespace Exam_1314i_EE.Ex5
     {
         public static int Execute(Func<int> a, Func<int> b, Func<int> c, Func<int,int> d)
         {
-        return d(a() + b() + c());
+            return d(a() + b() + c());
         }
         
         /* 
@@ -18,6 +18,30 @@ namespace Exam_1314i_EE.Ex5
             existência de múltiplos processadores.
         */
 
+        public static int ExecuteTasks(Func<int> a, Func<int> b, Func<int> c, Func<int, int> d)
+        {
+            Task<int> taskA = Task.Run(a);
+            Task<int> taskB = Task.Run(b);
+            Task<int> taskC = Task.Run(c);
 
+            return Task<int>.Factory.ContinueWhenAll(new Task[] {taskA, taskB, taskC},
+                (tasks) =>
+                {
+                   return d(taskA.Result + taskB.Result + taskC.Result);
+                }).Result;
+        }
+
+        public async static Task<int> ExecuteAsync(Func<int> a, Func<int> b, Func<int> c, Func<int, int> d)
+        {
+            Task<int> taskA = Task.Run(a);
+            Task<int> taskB = Task.Run(b);
+            Task<int> taskC = Task.Run(c);
+
+            var aa = await taskA;
+            var ab = await taskB;
+            var ac = await taskC;
+
+            return d(aa + ab + ac);
+        }
     }
 }
