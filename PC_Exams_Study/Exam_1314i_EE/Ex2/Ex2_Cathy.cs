@@ -31,7 +31,7 @@ namespace Exam_1314i_EE.Ex2
                 }
             }
 
-            public object getValue(int timeout)
+            public T getValue(int timeout)
             {
                 lock (this)
                 {
@@ -55,7 +55,7 @@ namespace Exam_1314i_EE.Ex2
                             return _value;
 
                         if (SyncUtils.AdjustTimeout(ref lastTime, ref timeout) == 0)
-                            return null;
+                            return default(T);
 
                     } while (true);
                 }

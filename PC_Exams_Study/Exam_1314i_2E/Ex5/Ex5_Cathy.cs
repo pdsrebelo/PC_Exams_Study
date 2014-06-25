@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Runtime.ConstrainedExecution;
+using System.Threading.Tasks;
 
 namespace Exam_1314i_2E.Ex5
 {
@@ -11,6 +12,77 @@ namespace Exam_1314i_2E.Ex5
     {
         class AsyncUtils
         {
+            public static Task<int> MaxIndex2(int[] data)
+            {
+                return maxIndex2_Helper(data, 0, data.Length);
+            }
+
+            public static async Task<int> maxIndex2_Helper_Async(int[] data, int minIdx, int maxIdx)
+            {
+                int threshold = 100;
+                int maxValuedIdx;
+
+                if (maxIdx - minIdx + 1 <= threshold)
+                {
+                    maxValuedIdx = minIdx;
+                    for (int i = minIdx + 1; i < maxIdx; i++)
+                    {
+                        if (data[i] > data[minIdx])
+                        {
+                            maxValuedIdx = i;
+                        }
+                    }
+                    return maxValuedIdx;
+                }
+                else
+                {
+                    int mid = (maxIdx + minIdx) / 2;
+
+                    Task<int> left = Task.Run(() => maxIndex2_Helper(data, minIdx, mid));
+                    Task<int> right = Task.Run(() => maxIndex2_Helper(data, mid + 1, maxIdx));
+
+                    int resL = await left;
+                    int resR = await right;
+
+                    return data[resL] > data[resR] ? resL : resR;
+                }
+            }
+            
+            public static Task<int> maxIndex2_Helper(int [] data, int minIdx, int maxIdx)
+            {
+                int threshold = 100;
+                int maxValuedIdx;
+
+                if (maxIdx - minIdx + 1 <= threshold)
+                {
+                    maxValuedIdx = minIdx;
+                    for (int i = minIdx + 1; i < maxIdx; i++)
+                    {
+                        if (data[i] > data[minIdx])
+                        {
+                            maxValuedIdx = i;
+                        }
+                    }
+                    return Task.FromResult(maxValuedIdx);
+                }
+                else
+                {
+                    int mid = (maxIdx + minIdx)/2;
+
+                    Task<int> left = Task.Run(()=>maxIndex2_Helper(data, minIdx, mid));     
+                    Task<int> right = Task.Run(()=>maxIndex2_Helper(data, mid+1, maxIdx)); 
+
+                    return Task.Factory.ContinueWhenAll(
+                            new[] {left, right},
+                            (tasks) =>
+                            {
+                                int resL = left.Result, resR = right.Result;
+                                return data[resL]>data[resR]?resL:resR;
+                            }
+                        );
+                }
+            }
+
             public static Task<int> MaxIndex(int[] data)
             {
                 if (data.Length == 1)
@@ -34,11 +106,13 @@ namespace Exam_1314i_2E.Ex5
                 Task<int> left = Task.Run(() => MaxIndex(leftArray));
                 Task<int> right = Task.Run(()=> MaxIndex(rightArray));
 
-                Task.WaitAll(left, right);// nao e preciso usar isto quando usamos .Result!
-                var resL = left.Result;
-                var resR = right.Result;
-
-                return new Task<int>(()=>resL>resR?resL:resR);
+                Task.Factory.ContinueWhenAll( new []{left,right},
+                    (tasks) =>
+                    {
+                        var resL = left.Result;
+                        var resR = right.Result;
+                        return data[resL] > data[resR] ? resL : resR;
+                    });
             }
         }
     }
