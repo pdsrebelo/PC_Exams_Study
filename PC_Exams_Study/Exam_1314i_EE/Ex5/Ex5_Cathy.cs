@@ -11,22 +11,41 @@ namespace Exam_1314i_EE.Ex5
         }
         Produza uma implementação da função que, fazendo uso da TPL, tire partido da possível existência de múltiplos
         processadores.*/
+
     class Ex5_Cathy
     {
+
         public static int Execute(Func<int> a, Func<int> b, Func<int> c, Func<int, int> d)
         {
-            var resA = Task.Run(() => a());
-            var resB = Task.Run(() => b());
-            var resC = Task.Run(() => c());
+            var resA = Task.Run(a);
+            var resB = Task.Run(b);
+            var resC = Task.Run(c);
 
-           // Task.WaitAll(new Task[] {resA, resB, resC});
-            var rA = resA.Result;
-            var rB = resB.Result;
-            var rC = resC.Result;
+            Task.WaitAll(new[]{resA, resB, resC});
+            return d(resA.Result + resB.Result + resC.Result);
+        }
 
-            return Task.Run(
-                    () => d (resA.Result + resB.Result + resC.Result)
-                ).Result;
+        // SOLUÇÃO INVENTADA
+        public static Task<int> Execute_Returning_Task(Func<int> a, Func<int> b, Func<int> c, Func<int, int> d)
+        {
+            var resA = Task.Run(a);
+            var resB = Task.Run(b);
+            var resC = Task.Run(c);
+
+            return Task.Factory.ContinueWhenAll(new[]{resA,resB,resC}, (tasks) => d(resA.Result + resB.Result + resC.Result));
+        }
+
+        public static async Task<int> Execute_Async(Func<int> a, Func<int> b, Func<int> c, Func<int, int> d)
+        {
+            var tA = Task.Run(a);
+            var tB = Task.Run(b);
+            var tC = Task.Run(c);
+
+            var resA = await tA;
+            var resB = await tB;
+            var resC = await tC;
+
+            return await Task.Run(() => d(resA + resB + resC));
         }
     }
 }

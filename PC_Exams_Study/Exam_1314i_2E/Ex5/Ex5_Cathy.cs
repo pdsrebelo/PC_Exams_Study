@@ -106,7 +106,7 @@ namespace Exam_1314i_2E.Ex5
                 Task<int> left = Task.Run(() => MaxIndex(leftArray));
                 Task<int> right = Task.Run(()=> MaxIndex(rightArray));
 
-                Task.Factory.ContinueWhenAll( new []{left,right},
+                return Task.Factory.ContinueWhenAll( new []{left,right},
                     (tasks) =>
                     {
                         var resL = left.Result;

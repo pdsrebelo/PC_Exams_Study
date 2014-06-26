@@ -8,8 +8,8 @@ namespace Exam_1314i_2E
 {
     class Program
     {
-        static void Main(string[] args)
-        {
-        }
+//        static void Main(string[] args)
+//        {
+//        }
     }
 }
