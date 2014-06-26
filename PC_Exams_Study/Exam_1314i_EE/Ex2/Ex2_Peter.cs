@@ -32,7 +32,7 @@ namespace Exam_1314i_EE.Ex2
 
                     _value = value;
 
-                    Monitor.Pulse(this);
+                    Monitor.PulseAll(this);
                 }
             }
 
